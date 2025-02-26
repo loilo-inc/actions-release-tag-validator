@@ -1,18 +1,14 @@
 name: "Release Tag Validator"
 description: "Validate release tags and delete invalid ones"
 author: "loilo"
+
 inputs:
-  github-token:
-    description: "GitHub Token for authentication"
-    required: true
   tag-name:
     description: "Tag to validate"
     required: true
   commit-sha:
     description: "SHA of the commit associated with the tag"
     required: true
-env:
-  GITHUB_TOKEN: ${{ inputs.github-token }}
 
 runs:
   using: "composite"
@@ -22,6 +18,7 @@ runs:
         fetch-depth: 0 # Set `fetch-depth: 0` so we can retrieve rcN tags
 
     - name: Validate tag
+      shell: bash
       # Use `grep -F` for literal matching of '.' in the tag
       run: |
           echo "Validating tag..."
@@ -33,7 +30,9 @@ runs:
             gh release delete "${{ github.ref_name }}" --yes
           }
 
-          VALID_TAGS=$(git tag --points-at "${{ github.sha }}" | grep -E "^${{ github.ref_name }}-rc[1-9][0-9]*$" || true | grep -F "${{ github.ref_name }}-rc" || true)
+          VALID_TAGS=$(git tag --points-at "${{ github.sha }}" \
+            | grep -E "^${{ github.ref_name }}-rc[1-9][0-9]*$" || true \
+            | grep -F "${{ github.ref_name }}-rc" || true)
           if [ -z "${VALID_TAGS}" ]; then
             echo "::error:: No valid rc tags found on commit. Aborting."
             delete_tag_and_release
@@ -42,7 +41,11 @@ runs:
           echo "Valid rc tags found:"
           echo "${VALID_TAGS}"
 
-          MAX_RC_TAG=$(git tag | grep -E "^${{ github.ref_name }}-rc[1-9][0-9]*$" | grep -F "${{ github.ref_name }}-rc" | sort -V | tail -n 1)
+          MAX_RC_TAG=$(git tag \
+            | grep -E "^${{ github.ref_name }}-rc[1-9][0-9]*$" \
+            | grep -F "${{ github.ref_name }}-rc" \
+            | sort -V \
+            | tail -n 1)
           echo "Highest rc tag: ${MAX_RC_TAG}"
           if ! echo "${VALID_TAGS}" | grep -Fxq "${MAX_RC_TAG}"; then
             echo "::error:: Highest rc tag ${MAX_RC_TAG} is not found in the valid rc tags list. Aborting."
