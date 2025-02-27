@@ -16,4 +16,4 @@ runs:
 
     - name: Validate tag
       shell: bash
-      run: deno run --allow-run --allow-env script.ts
+      run: deno run --allow-run --allow-env ./script.ts
