@@ -4,9 +4,5 @@
     "test": "deno test -A --coverage=.coverage",
     "module_reload": "deno cache --reload my_module.ts"
   },
-  "compilerOptions": {
-    "jsx": "react-jsx",
-    "jsxImportSource": "preact"
-  },
   "nodeModulesDir": "auto"
 }
