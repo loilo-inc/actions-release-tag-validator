@@ -10,10 +10,6 @@ runs:
       with:
         deno-version: "v2.x"
 
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0 # Set `fetch-depth: 0` so we can retrieve rcN tags
-
     - name: Validate tag
       shell: bash
       run: deno run --allow-run --allow-read --allow-env ${GITHUB_ACTION_PATH}/script.ts
