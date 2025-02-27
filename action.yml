@@ -15,9 +15,5 @@ runs:
         fetch-depth: 0 # Set `fetch-depth: 0` so we can retrieve rcN tags
 
     - name: Validate tag
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GITHUB_REF_NAME: ${{ github.ref_name }}
-        GITHUB_SHA: ${{ github.sha }}
       shell: bash
       run: deno run --allow-run --allow-env script.ts
