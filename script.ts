@@ -22,7 +22,9 @@ export async function main(command: RunCommand = runCommand) {
 
   try {
     if (!refName || !sha) {
-      throw new Error("GITHUB_REF_NAME and GITHUB_SHA are required.");
+      throw new Error(
+        "GITHUB_REF_NAME and GITHUB_SHA environment variables are required.",
+      );
     }
 
     console.log(`Ref: ${refName}, SHA: ${sha}`);
@@ -65,11 +67,13 @@ if (import.meta.main) {
     const refName = Deno.env.get("GITHUB_REF_NAME") ?? "";
     const sha = Deno.env.get("GITHUB_SHA") ?? "";
 
-    if (refName && sha) {
+    if (refName) {
       console.log("Deleting the current tag...");
       await new Deno.Command("git", {
         args: ["push", "origin", "--delete", refName],
       }).output();
+    }
+    if (sha) {
       console.log("Deleting the current release...");
       await new Deno.Command("gh", {
         args: ["release", "delete", refName, "--yes"],
