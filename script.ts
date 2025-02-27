@@ -14,7 +14,7 @@ export async function main(runner: ExecaRunner = execa) {
 
     console.log(`Ref: ${refName}, SHA: ${sha}`);
     const cmd = new Deno.Command("git", { args: ["fetch", "--tags"] });
-    await cmd.output();
+    console.log("Running:", await cmd.output());
 
     const { stdout } = await runner(`git tag --points-at ${sha}`);
     const rcTags: string[] = stdout.split("\n").filter((tag: string) => {
