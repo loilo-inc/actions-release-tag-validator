@@ -54,9 +54,9 @@ if (import.meta.main) {
 
     if (refName && sha) {
       console.log("Deleting the current tag...");
-      await execa(`git push origin --delete ${refName}`);
+      await execa("git", ["push", "origin", "--delete", refName]);
       console.log("Deleting the current release...");
-      await execa(`gh release delete ${refName} --yes`);
+      await execa("gh", ["release", "delete", refName, "--yes"]);
     }
 
     throw new Error(err.message);
