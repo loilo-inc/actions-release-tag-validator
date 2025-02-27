@@ -1,0 +1,17 @@
+{
+  "lock": false,
+  "tasks": {
+    "test": "deno test -A --coverage=.coverage",
+    "module_reload": "deno cache --reload my_module.ts"
+  },
+  "imports": {
+    "execa": "npm:execa",
+    "@std/regexp": "jsr:@std/regexp",
+    "@std/testing": "jsr:@std/assert"
+  },
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
+  },
+  "nodeModulesDir": "auto"
+}
