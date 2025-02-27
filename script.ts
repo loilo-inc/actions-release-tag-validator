@@ -1,4 +1,3 @@
-import { execa } from "npm:execa";
 import { escape } from "jsr:@std/regexp";
 
 export type RunCommand = (cmd: string, args: string[]) => Promise<string>;
@@ -68,9 +67,13 @@ if (import.meta.main) {
 
     if (refName && sha) {
       console.log("Deleting the current tag...");
-      await execa("git", ["push", "origin", "--delete", refName]);
+      await new Deno.Command("git", {
+        args: ["push", "origin", "--delete", refName],
+      }).output();
       console.log("Deleting the current release...");
-      await execa("gh", ["release", "delete", refName, "--yes"]);
+      await new Deno.Command("gh", {
+        args: ["release", "delete", refName, "--yes"],
+      }).output();
     }
 
     throw new Error(err.message);
