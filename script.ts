@@ -19,7 +19,7 @@ export async function main() {
       //   stdout: "piped",
       // });
     // const { stdout } = await command.output();
-    const { stdout } = await execa(`git tag --points-at ${sha}`);
+    const { stdout } = await execa`git tag --points-at ${sha}`;
     const output = new TextDecoder().decode(stdout);
     const rcTags: string[] = output.split("\n").filter((tag: string) => {
       const escapedRefName = escape(refName);
@@ -38,7 +38,7 @@ export async function main() {
     // });
     // const { stdout: stdout2 } = await command2.output();
     // const allTags = new TextDecoder().decode(stdout2).split("\n");
-    const allTags = (await execa("git tag")).stdout.split("\n");
+    const allTags = (await execa`git tag`).stdout.split("\n");
     const allRcTags: string[] = allTags.filter((tag: string) => {
       const escapedRefName = escape(refName);
       return new RegExp(`^${escapedRefName}-rc[1-9][0-9]*$`).test(tag);
