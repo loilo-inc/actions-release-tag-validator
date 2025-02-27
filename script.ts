@@ -1,5 +1,5 @@
 import { execa } from "npm:execa";
-import { escape } from "@std/regexp";
+import { escape } from "jsr:@std/regexp";
 
 type ExecaRunner = (command: string) => Promise<{ stdout: string }>;
 

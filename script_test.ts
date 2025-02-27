@@ -1,4 +1,4 @@
-import { assertEquals, assertRejects } from "@std/testing";
+import { assertEquals, assertRejects } from "jsr:@std/assert";
 import { getLatestRcTag, main } from "./script.ts";
 
 const mockExeca: (command: string) => Promise<{ stdout: string }> = async (
