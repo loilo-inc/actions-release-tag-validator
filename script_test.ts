@@ -1,7 +1,9 @@
 import { assertEquals, assertRejects } from "@std/testing";
 import { getLatestRcTag, main } from "./script.ts";
 
-const mockExeca: (command: string) => Promise<{ stdout: string }> = async (command: string) => {
+const mockExeca: (command: string) => Promise<{ stdout: string }> = async (
+  command: string,
+) => {
   if (command.startsWith("git tag --points-at")) {
     return await { stdout: "" };
   } else if (command === "git tag") {
@@ -23,7 +25,7 @@ Deno.test("Test missing GITHUB_REF_NAME", async () => {
       await main(mockExeca);
     },
     Error,
-    "Command failed: GITHUB_REF_NAME and GITHUB_SHA are required."
+    "Command failed: GITHUB_REF_NAME and GITHUB_SHA are required.",
   );
 });
 
@@ -36,7 +38,7 @@ Deno.test("Test missing GITHUB_SHA", async () => {
       await main(mockExeca);
     },
     Error,
-    "Command failed: GITHUB_REF_NAME and GITHUB_SHA are required."
+    "Command failed: GITHUB_REF_NAME and GITHUB_SHA are required.",
   );
 });
 
@@ -49,7 +51,7 @@ Deno.test("Test no valid rc tags found", async () => {
       await main(mockExeca);
     },
     Error,
-    "Command failed: No valid rc tags found on commit. Aborting."
+    "Command failed: No valid rc tags found on commit. Aborting.",
   );
 });
 
@@ -101,6 +103,6 @@ Deno.test("Test highest rc tag not in valid list", async () => {
       await main(customMockExeca);
     },
     Error,
-    "Highest rc tag"
+    "Highest rc tag",
   );
 });

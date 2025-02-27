@@ -35,10 +35,15 @@ export async function main(runner: ExecaRunner = execa) {
     console.log("Latest rc tag:", latestRcTag);
 
     if (!latestRcTag || !rcTags.includes(latestRcTag)) {
-      throw new Error(`Highest rc tag ${latestRcTag} is not found in the valid rc tags list. Aborting.`);
+      throw new Error(
+        `Highest rc tag ${latestRcTag} is not found in the valid rc tags list. Aborting.`,
+      );
     }
   } catch (error) {
-    throw new Error("Command failed: " + (error instanceof Error ? error.message : String(error)));
+    throw new Error(
+      "Command failed: " +
+        (error instanceof Error ? error.message : String(error)),
+    );
   }
 }
 
