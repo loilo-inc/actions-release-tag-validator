@@ -1,7 +1,7 @@
 import { execa } from "npm:execa";
 import { escape } from "jsr:@std/regexp";
 
-type ExecaRunner = (command: string) => Promise<{ stdout: string }>;
+type ExecaRunner = (command: string, args?: string[]) => Promise<{ stdout: string }>;
 
 export async function main(runner: ExecaRunner = execa) {
   const refName = Deno.env.get("GITHUB_REF_NAME") ?? "";

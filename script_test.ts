@@ -1,7 +1,7 @@
 import { assertEquals, assertRejects } from "jsr:@std/assert";
 import { getLatestRcTag, main } from "./script.ts";
 
-const mockExeca: (command: string) => Promise<{ stdout: string }> = async (
+const mockExeca: (command: string, args?: string[]) => Promise<{ stdout: string }> = async (
   command: string,
 ) => {
   if (command.startsWith("git tag --points-at")) {
