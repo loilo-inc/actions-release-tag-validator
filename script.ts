@@ -13,15 +13,13 @@ export async function main() {
     }
 
     console.log(`Ref: ${refName}, SHA: ${sha}`);
-    const cmd = new Deno.Command("git", { args: ["fetch", "--tags"] });
-    console.log("Running:", await cmd.output());
-
     // const { stdout } = await runner(`git tag --points-at ${sha}`);
-    const command = new Deno.Command("git", {
-      args: ["tag", "--points-at", sha],
-      stdout: "piped",
-    });
-    const { stdout } = await command.output();
+    // const command = new Deno.Command("git", {
+      //   args: ["tag", "--points-at", sha],
+      //   stdout: "piped",
+      // });
+    // const { stdout } = await command.output();
+    const { stdout } = await execa(`git tag --points-at ${sha}`);
     const output = new TextDecoder().decode(stdout);
     const rcTags: string[] = output.split("\n").filter((tag: string) => {
       const escapedRefName = escape(refName);
@@ -34,12 +32,13 @@ export async function main() {
     console.log("Valid rc tags found:\n", rcTags);
 
     // const allTags = (await runner("git tag")).stdout.split("\n");
-    const command2 = new Deno.Command("git", {
-      args: ["tag"],
-      stdout: "piped",
-    });
-    const { stdout: stdout2 } = await command2.output();
-    const allTags = new TextDecoder().decode(stdout2).split("\n");
+    // const command2 = new Deno.Command("git", {
+    //   args: ["tag"],
+    //   stdout: "piped",
+    // });
+    // const { stdout: stdout2 } = await command2.output();
+    // const allTags = new TextDecoder().decode(stdout2).split("\n");
+    const allTags = (await execa("git tag")).stdout.split("\n");
     const allRcTags: string[] = allTags.filter((tag: string) => {
       const escapedRefName = escape(refName);
       return new RegExp(`^${escapedRefName}-rc[1-9][0-9]*$`).test(tag);
