@@ -1,5 +1,10 @@
 import { assertEquals, assertRejects } from "@std/assert";
-import { getLatestRcTag, main, RunCommand, deleteTagAndReleaseOnError } from "./script.ts";
+import {
+  deleteTagAndReleaseOnError,
+  getLatestRcTag,
+  main,
+  RunCommand,
+} from "./script.ts";
 
 // deno-lint-ignore require-await
 const mockRunCommand: RunCommand = async (cmd: string, args: string[]) => {
@@ -125,7 +130,10 @@ Deno.test("Test deleteTagAndReleaseOnError", async () => {
 
   await assertRejects(
     async () => {
-      await deleteTagAndReleaseOnError(new Error("Test error"), customMockRunCommand);
+      await deleteTagAndReleaseOnError(
+        new Error("Test error"),
+        customMockRunCommand,
+      );
     },
     Error,
     "Test error",
