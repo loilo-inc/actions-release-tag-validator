@@ -1,4 +1,4 @@
-import { assertEquals, assertRejects } from "@std/assert";
+import { assertEquals, assertExists, assertRejects } from "@std/assert";
 import {
   deleteTagAndReleaseOnError,
   getLatestRcTag,
@@ -145,19 +145,12 @@ Deno.test("Test runCommand failure case", async () => {
   );
 });
 
-Deno.test("Test deleteTagAndReleaseOnError", async () => {
+Deno.test("deleteTagAndReleaseOnError - both deletions succeed", async () => {
   // deno-lint-ignore require-await
-  const customMockRunCommand: RunCommand = async (
-    cmd: string,
-    args: string[],
-  ) => {
+  const mockRunCommand: RunCommand = async (cmd: string, args: string[]) => {
     const fullCmd = `${cmd} ${args.join(" ")}`;
-    if (fullCmd.startsWith("git push origin --delete")) {
-      return "Deleted tag";
-    }
-    if (fullCmd.startsWith("gh release delete")) {
-      return "Deleted release";
-    }
+    if (fullCmd.startsWith("git push origin --delete")) return "Deleted tag";
+    if (fullCmd.startsWith("gh release delete")) return "Deleted release";
     return "";
   };
 
@@ -167,10 +160,131 @@ Deno.test("Test deleteTagAndReleaseOnError", async () => {
         "5.5.0",
         "fake_sha",
         new Error("Test error"),
-        customMockRunCommand,
+        mockRunCommand,
       );
     },
     Error,
     "Test error",
+  );
+});
+
+Deno.test("deleteTagAndReleaseOnError - tag deletion fails", async () => {
+  // deno-lint-ignore require-await
+  const mockRunCommand: RunCommand = async (cmd: string, args: string[]) => {
+    const fullCmd = `${cmd} ${args.join(" ")}`;
+    if (fullCmd.startsWith("git push origin --delete")) {
+      throw new Error("Tag deletion failed");
+    }
+    if (fullCmd.startsWith("gh release delete")) return "Deleted release";
+    return "";
+  };
+
+  const originalError = console.error;
+  const errorLogs: string[] = [];
+
+  try {
+    console.error = (...args: unknown[]) => {
+      errorLogs.push(args.join(" "));
+    };
+
+    await assertRejects(
+      async () => {
+        await deleteTagAndReleaseOnError(
+          "5.5.0",
+          "fake_sha",
+          new Error("Test error"),
+          mockRunCommand,
+        );
+      },
+      Error,
+      "Test error",
+    );
+  } finally {
+    console.error = originalError;
+  }
+
+  assertExists(errorLogs.find((log) => log.includes("Tag deletion failed")));
+});
+
+Deno.test("deleteTagAndReleaseOnError - release deletion fails", async () => {
+  // deno-lint-ignore require-await
+  const mockRunCommand: RunCommand = async (cmd: string, args: string[]) => {
+    const fullCmd = `${cmd} ${args.join(" ")}`;
+    if (fullCmd.startsWith("git push origin --delete")) return "Deleted tag";
+    if (fullCmd.startsWith("gh release delete")) {
+      throw new Error("Release deletion failed");
+    }
+    return "";
+  };
+
+  const originalError = console.error;
+  const errorLogs: string[] = [];
+
+  try {
+    console.error = (...args: unknown[]) => {
+      errorLogs.push(args.join(" "));
+    };
+
+    await assertRejects(
+      async () => {
+        await deleteTagAndReleaseOnError(
+          "5.5.0",
+          "fake_sha",
+          new Error("Test error"),
+          mockRunCommand,
+        );
+      },
+      Error,
+      "Test error",
+    );
+  } finally {
+    console.error = originalError;
+  }
+
+  assertExists(
+    errorLogs.some((log) => log.includes("Release deletion failed")),
+  );
+});
+
+Deno.test("deleteTagAndReleaseOnError - both deletions fail", async () => {
+  // deno-lint-ignore require-await
+  const mockRunCommand: RunCommand = async (cmd: string, args: string[]) => {
+    const fullCmd = `${cmd} ${args.join(" ")}`;
+    if (fullCmd.startsWith("git push origin --delete")) {
+      throw new Error("Tag deletion failed");
+    }
+    if (fullCmd.startsWith("gh release delete")) {
+      throw new Error("Release deletion failed");
+    }
+    return "";
+  };
+
+  const originalError = console.error;
+  const errorLogs: string[] = [];
+
+  try {
+    console.error = (...args: unknown[]) => {
+      errorLogs.push(args.join(" "));
+    };
+
+    await assertRejects(
+      async () => {
+        await deleteTagAndReleaseOnError(
+          "5.5.0",
+          "fake_sha",
+          new Error("Test error"),
+          mockRunCommand,
+        );
+      },
+      Error,
+      "Test error",
+    );
+  } finally {
+    console.error = originalError;
+  }
+
+  assertExists(errorLogs.some((log) => log.includes("Tag deletion failed")));
+  assertExists(
+    errorLogs.some((log) => log.includes("Release deletion failed")),
   );
 });
