@@ -22,13 +22,11 @@ export async function deleteTagAndReleaseOnError(
   err: Error,
   command: RunCommand = runCommand,
 ): Promise<never> {
-  if (tagName) {
+  if (tagName && commitSha) {
     console.log("Deleting the current tag...");
     await command("git", ["push", "origin", "--delete", tagName]);
-  }
-  if (commitSha) {
     console.log("Deleting the current release...");
-    await command("gh", ["release", "delete", commitSha, "--yes"]);
+    await command("gh", ["release", "delete", tagName, "--yes"]);
   }
 
   throw new Error(err.message);
@@ -39,6 +37,12 @@ export async function main(
   commitSha: string,
   command: RunCommand = runCommand,
 ) {
+  if (!tagName || !commitSha) {
+    throw new Error(
+      "Invalid arguments. Please provide a tag name and a commit SHA.",
+    );
+  }
+
   console.log(`Tag: ${tagName}, SHA: ${commitSha}`);
 
   try {

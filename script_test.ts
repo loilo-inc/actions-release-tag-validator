@@ -53,10 +53,27 @@ Deno.test("Test valid rc tags with `v` prefix and highest matching", async () =>
   await main("v5.5.0", "fake_sha", customMockRunCommand);
 });
 
-Deno.test("Test no valid rc tags found", async () => {
-  Deno.env.set("GITHUB_REF_NAME", "5.5.0");
-  Deno.env.set("GITHUB_SHA", "fake_sha");
+Deno.test("Test empty tag name", async () => {
+  await assertRejects(
+    async () => {
+      await main("", "fake_sha", mockRunCommand);
+    },
+    Error,
+    "Invalid arguments",
+  );
+});
 
+Deno.test("Test empty commit SHA", async () => {
+  await assertRejects(
+    async () => {
+      await main("5.5.0", "", mockRunCommand);
+    },
+    Error,
+    "Invalid arguments",
+  );
+});
+
+Deno.test("Test no valid rc tags found", async () => {
   await assertRejects(
     async () => {
       await main("5.5.0", "fake_sha", mockRunCommand);
