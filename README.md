@@ -60,7 +60,7 @@ env:
 
 jobs:
   release-tag-validation:
-    runs-on: ubuntu-latest-arm64
+    runs-on: ubuntu-latest
     permissions:
       contents: write # Required for deleting tags/releases
     steps:
@@ -70,14 +70,14 @@ jobs:
           commit-sha: ${{ github.sha }}
 
   deploy-api:
-    runs-on: ubuntu-latest-arm64
+    runs-on: ubuntu-latest
     # Ensure release-tag-validation succeeds before deploying
     needs: release-tag-validation
     steps:
       - run: echo "Deploying API"
 
   deploy-worker:
-    runs-on: ubuntu-latest-arm64
+    runs-on: ubuntu-latest
     # Also must wait for release-tag-validation
     needs: release-tag-validation
     steps:
