@@ -1,4 +1,4 @@
-import { escape } from "jsr:@std/regexp";
+import { escape } from "@std/regexp";
 
 export type RunCommand = (cmd: string, args: string[]) => Promise<string>;
 
@@ -14,6 +14,25 @@ export async function runCommand(cmd: string, args: string[]): Promise<string> {
     throw new Error(`Command failed: ${cmd} ${args.join(" ")}\n${errorStr}`);
   }
   return new TextDecoder().decode(stdout);
+}
+
+export async function deleteTagAndReleaseOnError(
+  err: Error,
+  command: RunCommand = runCommand,
+): Promise<never> {
+  const refName = Deno.env.get("GITHUB_REF_NAME") ?? "";
+  const sha = Deno.env.get("GITHUB_SHA") ?? "";
+
+  if (refName) {
+    console.log("Deleting the current tag...");
+    await command("git", ["push", "origin", "--delete", refName]);
+  }
+  if (sha) {
+    console.log("Deleting the current release...");
+    await command("gh", ["release", "delete", refName, "--yes"]);
+  }
+
+  throw new Error(err.message);
 }
 
 export async function main(command: RunCommand = runCommand) {
@@ -62,30 +81,12 @@ export async function main(command: RunCommand = runCommand) {
   }
 }
 
-if (import.meta.main) {
-  main().catch(async (err: Error) => {
-    const refName = Deno.env.get("GITHUB_REF_NAME") ?? "";
-    const sha = Deno.env.get("GITHUB_SHA") ?? "";
-
-    if (refName) {
-      console.log("Deleting the current tag...");
-      await new Deno.Command("git", {
-        args: ["push", "origin", "--delete", refName],
-      }).output();
-    }
-    if (sha) {
-      console.log("Deleting the current release...");
-      await new Deno.Command("gh", {
-        args: ["release", "delete", refName, "--yes"],
-      }).output();
-    }
-
-    throw new Error(err.message);
-  });
-}
-
 export function getLatestRcTag(allRcTags: string[]): string | undefined {
   return allRcTags.sort((a, b) =>
     a.localeCompare(b, undefined, { numeric: true })
   ).pop();
+}
+
+if (import.meta.main) {
+  main().catch((err) => deleteTagAndReleaseOnError(err));
 }
