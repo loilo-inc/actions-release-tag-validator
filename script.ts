@@ -20,37 +20,31 @@ export async function deleteTagAndReleaseOnError(
   err: Error,
   command: RunCommand = runCommand,
 ): Promise<never> {
-  const refName = Deno.env.get("GITHUB_REF_NAME") ?? "";
-  const sha = Deno.env.get("GITHUB_SHA") ?? "";
+  const [tagName, commitSha] = Deno.args;
 
-  if (refName) {
+  if (tagName) {
     console.log("Deleting the current tag...");
-    await command("git", ["push", "origin", "--delete", refName]);
+    await command("git", ["push", "origin", "--delete", tagName]);
   }
-  if (sha) {
+  if (commitSha) {
     console.log("Deleting the current release...");
-    await command("gh", ["release", "delete", refName, "--yes"]);
+    await command("gh", ["release", "delete", commitSha, "--yes"]);
   }
 
   throw new Error(err.message);
 }
 
-export async function main(command: RunCommand = runCommand) {
-  const refName = Deno.env.get("GITHUB_REF_NAME") ?? "";
-  const sha = Deno.env.get("GITHUB_SHA") ?? "";
+export async function main(
+  tagName: string,
+  commitSha: string,
+  command: RunCommand = runCommand,
+) {
+  console.log(`Tag: ${tagName}, SHA: ${commitSha}`);
 
   try {
-    if (!refName || !sha) {
-      throw new Error(
-        "GITHUB_REF_NAME and GITHUB_SHA environment variables are required.",
-      );
-    }
-
-    console.log(`Ref: ${refName}, SHA: ${sha}`);
-
-    const currentTags = await command("git", ["tag", "--points-at", sha]);
+    const currentTags = await command("git", ["tag", "--points-at", commitSha]);
     const rcTags: string[] = currentTags.split("\n").filter((tag: string) => {
-      const escapedRefName = escape(refName);
+      const escapedRefName = escape(tagName);
       return new RegExp(`^v?${escapedRefName}-rc[1-9][0-9]*$`).test(tag);
     });
 
@@ -61,7 +55,7 @@ export async function main(command: RunCommand = runCommand) {
 
     const allTags = (await command("git", ["tag"])).split("\n");
     const allRcTags: string[] = allTags.filter((tag: string) => {
-      const escapedRefName = escape(refName);
+      const escapedRefName = escape(tagName);
       return new RegExp(`^v?${escapedRefName}-rc[1-9][0-9]*$`).test(tag);
     });
 
@@ -88,5 +82,6 @@ export function getLatestRcTag(allRcTags: string[]): string | undefined {
 }
 
 if (import.meta.main) {
-  main().catch((err) => deleteTagAndReleaseOnError(err));
+  const [tagName, commitSha] = Deno.args;
+  main(tagName, commitSha).catch((err) => deleteTagAndReleaseOnError(err));
 }

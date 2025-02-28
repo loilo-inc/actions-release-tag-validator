@@ -2,6 +2,14 @@ name: "Release Tag Validator"
 description: "Validate release tags and delete invalid ones"
 author: "loilo"
 
+inputs:
+  tag-name:
+    description: "Tag to validate"
+    required: true
+  commit-sha:
+    description: "SHA of the commit"
+    required: true
+
 runs:
   using: "composite"
   steps:
@@ -16,4 +24,4 @@ runs:
 
     - name: Validate tag
       shell: bash
-      run: deno run --allow-run --allow-read --allow-env ${GITHUB_ACTION_PATH}/script.ts
+      run: deno run --allow-run --allow-read ${GITHUB_ACTION_PATH}/script.ts ${{ inputs.tag-name }} ${{ inputs.commit-sha }}
