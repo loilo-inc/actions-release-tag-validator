@@ -23,10 +23,18 @@ export async function deleteTagAndReleaseOnError(
   command: RunCommand = runCommand,
 ): Promise<never> {
   if (tagName && commitSha) {
-    console.log("Deleting the current tag...");
-    await command("git", ["push", "origin", "--delete", tagName]);
-    console.log("Deleting the current release...");
-    await command("gh", ["release", "delete", tagName, "--yes"]);
+    console.log("Deleting the current tag & release in parallel...");
+
+    const results = await Promise.allSettled([
+      command("git", ["push", "origin", "--delete", tagName]),
+      command("gh", ["release", "delete", tagName, "--yes"]),
+    ]);
+
+    for (const r of results) {
+      if (r.status === "rejected") {
+        console.error("Deletion failed:", r.reason);
+      }
+    }
   }
 
   throw new Error(err.message);
