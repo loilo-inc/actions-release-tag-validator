@@ -87,7 +87,7 @@ export function getLatestRcTag(allRcTags: string[]): string | undefined {
 
 if (import.meta.main) {
   const [tagName, commitSha] = Deno.args;
-  main(tagName, commitSha).catch((err) =>
-    deleteTagAndReleaseOnError(tagName, commitSha, err)
+  main(tagName, commitSha).catch(async (err) =>
+    await deleteTagAndReleaseOnError(tagName, commitSha, err)
   );
 }
