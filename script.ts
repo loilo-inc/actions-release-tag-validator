@@ -17,11 +17,11 @@ export async function runCommand(cmd: string, args: string[]): Promise<string> {
 }
 
 export async function deleteTagAndReleaseOnError(
+  tagName: string,
+  commitSha: string,
   err: Error,
   command: RunCommand = runCommand,
 ): Promise<never> {
-  const [tagName, commitSha] = Deno.args;
-
   if (tagName) {
     console.log("Deleting the current tag...");
     await command("git", ["push", "origin", "--delete", tagName]);
@@ -45,7 +45,7 @@ export async function main(
     const currentTags = await command("git", ["tag", "--points-at", commitSha]);
     const rcTags: string[] = currentTags.split("\n").filter((tag: string) => {
       const escapedRefName = escape(tagName);
-      return new RegExp(`^v?${escapedRefName}-rc[1-9][0-9]*$`).test(tag);
+      return new RegExp(`^${escapedRefName}-rc[1-9][0-9]*$`).test(tag);
     });
 
     if (rcTags.length === 0) {
@@ -56,7 +56,7 @@ export async function main(
     const allTags = (await command("git", ["tag"])).split("\n");
     const allRcTags: string[] = allTags.filter((tag: string) => {
       const escapedRefName = escape(tagName);
-      return new RegExp(`^v?${escapedRefName}-rc[1-9][0-9]*$`).test(tag);
+      return new RegExp(`^${escapedRefName}-rc[1-9][0-9]*$`).test(tag);
     });
 
     const latestRcTag = getLatestRcTag(allRcTags);
@@ -83,5 +83,7 @@ export function getLatestRcTag(allRcTags: string[]): string | undefined {
 
 if (import.meta.main) {
   const [tagName, commitSha] = Deno.args;
-  main(tagName, commitSha).catch((err) => deleteTagAndReleaseOnError(err));
+  main(tagName, commitSha).catch((err) =>
+    deleteTagAndReleaseOnError(tagName, commitSha, err)
+  );
 }
