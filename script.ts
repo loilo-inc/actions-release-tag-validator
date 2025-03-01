@@ -56,8 +56,8 @@ export async function main(
   try {
     const currentTags = await command("git", ["tag", "--points-at", commitSha]);
     const rcTags: string[] = currentTags.split("\n").filter((tag: string) => {
-      const escapedRefName = escape(tagName);
-      return new RegExp(`^${escapedRefName}-rc[1-9][0-9]*$`).test(tag);
+      const escapedTagName = escape(tagName);
+      return new RegExp(`^${escapedTagName}-rc[1-9][0-9]*$`).test(tag);
     });
 
     if (rcTags.length === 0) {
@@ -67,8 +67,8 @@ export async function main(
 
     const allTags = (await command("git", ["tag"])).split("\n");
     const allRcTags: string[] = allTags.filter((tag: string) => {
-      const escapedRefName = escape(tagName);
-      return new RegExp(`^${escapedRefName}-rc[1-9][0-9]*$`).test(tag);
+      const escapedTagName = escape(tagName);
+      return new RegExp(`^${escapedTagName}-rc[1-9][0-9]*$`).test(tag);
     });
 
     const latestRcTag = getLatestRcTag(allRcTags);
