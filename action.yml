@@ -20,7 +20,9 @@ runs:
 
     - uses: actions/checkout@v4
       with:
-        fetch-depth: 0 # Set `fetch-depth: 0` so we can retrieve rcN tags
+        fetch-depth: 100 # Optimize fetch performance while keeping recent rcN tags
+        fetch-tags: true
+        ref: refs/tags/*
 
     - name: Validate tag
       shell: bash
