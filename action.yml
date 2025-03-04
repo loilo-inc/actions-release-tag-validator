@@ -19,8 +19,10 @@ runs:
         deno-version: "v2.x"
 
     - uses: actions/checkout@v4
-      with:
-        fetch-tags: true
+
+    - name: Fetch tags
+      shell: bash
+      run: git fetch --tags
 
     - name: Validate tag
       shell: bash
