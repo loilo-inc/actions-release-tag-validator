@@ -23,6 +23,7 @@ runs:
         fetch-depth: 10 # Optimize fetch performance while keeping recent rcN tags
     
     - name: Ensure all tags are fetched
+      shell: bash
       run: git fetch --unshallow --tags
 
     - name: Validate tag
