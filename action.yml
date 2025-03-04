@@ -19,10 +19,8 @@ runs:
         deno-version: "v2.x"
 
     - uses: actions/checkout@v4
-    
-    - name: Fetch tags
-      shell: bash
-      run: git fetch --depth=10 --tags  # Optimize fetch performance while keeping recent rcN tags
+      with:
+        tags: true
 
     - name: Validate tag
       shell: bash
