@@ -112,9 +112,3 @@ jobs:
 
 If validation fails (e.g., no `rc` tags, or not the highest rc version), the
 action deletes the invalid tag & release.
-
----
-
-## License
-
-MIT License / Copyright (c) LoiLo inc.
