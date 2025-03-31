@@ -116,4 +116,5 @@ action deletes the invalid tag & release.
 ---
 
 ## License
+
 MIT License / Copyright (c) LoiLo inc.
