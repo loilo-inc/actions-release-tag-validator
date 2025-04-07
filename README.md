@@ -64,7 +64,7 @@ jobs:
     permissions:
       contents: write # Required for deleting tags/releases
     steps:
-      - uses: loilo-inc/actions-release-tag-validator@v0
+      - uses: loilo-inc/actions-release-tag-validator@v1
         with:
           tag-name: ${{ github.ref_name }}
           commit-sha: ${{ github.sha }}
